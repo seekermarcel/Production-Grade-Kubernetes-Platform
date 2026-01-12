@@ -1,0 +1,43 @@
+configs:
+  params:
+    # Keeps the server simpler for local usage; we will access via port-forward
+    server.insecure: "true"
+
+server:
+  service:
+    type: ClusterIP
+
+controller:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+applicationSet:
+  enabled: false
+
+dex:
+  enabled: false
+
+redis:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+
+# Optional: schedule argocd components on control-plane if your workers are busy
+# (Usually not necessary, but harmless in kind)
+global:
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
