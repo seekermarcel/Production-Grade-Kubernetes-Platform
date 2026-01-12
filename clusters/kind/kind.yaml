@@ -1,0 +1,83 @@
+# Usage:
+#   kind create cluster --name platform --config clusters/kind/kind.yaml
+#
+# Notes:
+# - This config makes the cluster "ingress-ready" by mapping host ports 80/443 to the control-plane node.
+# - It also configures containerd to use a local registry at localhost:5000 (see optional registry snippet below).
+
+# this config file contains all config fields with comments
+# NOTE: this is not a particularly useful config file
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: platform
+
+networking:
+  # Default CNI is fine to start. You can switch later (e.g., Cilium) if desired.
+  disableDefaultCNI: false
+  kubeProxyMode: iptables
+
+# patch the generated kubeadm config with some extra settings
+kubeadmConfigPatches:
+- |
+  apiVersion: kubelet.config.k8s.io/v1beta1
+  kind: KubeletConfiguration
+  evictionHard:
+    nodefs.available: "0%"
+# patch it further using a JSON 6902 patch
+kubeadmConfigPatchesJSON6902:
+- group: kubeadm.k8s.io
+  version: v1beta3
+  kind: ClusterConfiguration
+  patch: |
+    - op: add
+      path: /apiServer/certSANs/-
+      value: my-hostname
+# 1 control plane node and 3 workers
+nodes:
+# the control plane node config
+- role: control-plane
+  extraPortMappings:
+      - containerPort: 30080
+        hostPort: 80
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      - containerPort: 30443
+        hostPort: 443
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+
+  # Allow containerd (inside kind nodes) to pull from a local registry running on your machine.
+  # The registry is referenced in the cluster as "kind-registry:5000".
+  extraMounts: []
+  kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: "ingress-ready=true"
+
+#  containerdConfigPatches:
+#    - |
+#      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+#        endpoint = ["http://kind-registry:5000"]
+
+# the three workers
+- role: worker
+- role: worker
+- role: worker
+
+# --- Optional local registry setup (recommended) ---
+# Run this BEFORE creating the cluster, or after (then restart the cluster).
+#
+# 1) Start a registry container:
+#    docker run -d --restart=always -p 5000:5000 --name kind-registry registry:2
+#
+# 2) Connect registry to the kind network:
+#    docker network connect kind kind-registry || true
+#
+# 3) (Optional) Document your image workflow:
+#    - Build: docker build -t localhost:5000/demo-service:dev .
+#    - Push:  docker push localhost:5000/demo-service:dev
+#    - Use image: localhost:5000/demo-service:dev in your manifests
+#
+# Tip: If you don't want a local registry, delete the containerdConfigPatches section.

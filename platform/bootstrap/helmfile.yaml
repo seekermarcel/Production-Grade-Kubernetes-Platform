@@ -1,0 +1,48 @@
+# platform/bootstrap/helmfile.yaml
+repositories:
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: metrics-server
+    url: https://kubernetes-sigs.github.io/metrics-server/
+  - name: external-secrets
+    url: https://charts.external-secrets.io
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    version: 4.11.2
+    values:
+      - values/ingress-nginx-kind.yaml
+
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.15.3
+    values:
+      - values/cert-manager.yaml
+
+  - name: metrics-server
+    namespace: kube-system
+    chart: metrics-server/metrics-server
+    version: 3.12.1
+    values:
+      - values/metrics-server.yaml
+
+  - name: external-secrets
+    namespace: external-secrets
+    chart: external-secrets/external-secrets
+    version: 0.10.5
+    values:
+      - values/external-secrets.yaml
+
+  - name: argocd
+    namespace: argocd
+    chart: argo/argo-cd
+    version: 7.6.12
+    values:
+      - values/argocd-kind.yaml
