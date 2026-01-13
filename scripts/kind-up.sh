@@ -36,11 +36,9 @@ kubectl -n argocd rollout status deploy/argocd-server --timeout=240s
 kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=240s
 kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=240s
 
-echo ""
-echo "==> Next: configure Argo CD to sync this repo"
-echo "1) Edit platform/gitops/argocd/root-application.yaml and set repoURL to your GitHub repo"
-echo "2) Apply it:"
-echo "   kubectl apply -f platform/gitops/argocd/root-application.yaml"
+echo "==> Applying Argo CD root application"
+kubectl apply -f platform/gitops/argocd/root-application.yaml
+
 echo ""
 echo "==> Access Argo CD UI (port-forward):"
 echo "   kubectl -n argocd port-forward svc/argocd-server 8080:80"
