@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: REPO_URL_OF_YOUR_PLATFORM_REPO
+    repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
     targetRevision: main
     path: platform/apps/observability/manifests
     directory:
