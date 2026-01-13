@@ -34,5 +34,5 @@ spec:
       chart: loki-stack
       targetRevision: 2.10.2
     - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
-      targetRevision: main
+      targetRevision: monitoring
       ref: values
