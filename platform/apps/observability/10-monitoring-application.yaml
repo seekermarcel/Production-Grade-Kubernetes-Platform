@@ -8,17 +8,26 @@ metadata:
 spec:
   project: default
 
-  source:
-    repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: 65.8.1
-    helm:
-      valueFiles:
-        - $values/platform/apps/observability/values/kube-prometheus-stack.yaml
-
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+
+  # Multi-source: chart from Helm repo, values from your Git repo
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 65.8.1
+      helm:
+        valueFiles:
+          - $values/platform/apps/observability/values/kube-prometheus-stack.yaml
+        # IMPORTANT: install CRDs
+        parameters:
+          - name: crds.enabled
+            value: "true"
+
+    - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
+      targetRevision: main
+      ref: values
 
   syncPolicy:
     automated:
@@ -28,12 +37,3 @@ spec:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
-
-  # This enables Argo "multi-source" so valueFiles can come from THIS repo.
-  sources:
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 65.8.1
-    - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
-      targetRevision: main
-      ref: values
