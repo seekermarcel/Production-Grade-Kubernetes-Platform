@@ -1,0 +1,44 @@
+fullnameOverride: monitoring
+
+grafana:
+  enabled: true
+  adminPassword: admin
+  defaultDashboardsEnabled: true
+
+  service:
+    type: ClusterIP
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+    datasources:
+      enabled: true
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # Pick up ServiceMonitors across namespaces that match this label.
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+    serviceMonitorNamespaceSelector: {}
+
+    # Pick up PrometheusRules across namespaces that match this label.
+    ruleSelector:
+      matchLabels:
+        release: monitoring
+    ruleNamespaceSelector: {}
+
+    retention: 7d
+
+alertmanager:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true

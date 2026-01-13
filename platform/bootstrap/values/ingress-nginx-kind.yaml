@@ -7,16 +7,13 @@ controller:
       http: 30080
       https: 30443
 
-  # Kind-specific: ensures it schedules where our port mappings exist
   nodeSelector:
     ingress-ready: "true"
 
-  # Allow scheduling onto the kind control-plane node (tainted NoSchedule)
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
       effect: "NoSchedule"
-    # Some clusters still use the legacy master taint
     - key: "node-role.kubernetes.io/master"
       operator: "Exists"
       effect: "NoSchedule"
@@ -26,6 +23,10 @@ controller:
 
   metrics:
     enabled: true
+    # IMPORTANT:
+    # Do NOT enable ServiceMonitor here because the CRD isn't installed during bootstrap.
+    serviceMonitor:
+      enabled: false
 
 defaultBackend:
   enabled: true

@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-demo-service
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  demo-service.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": {}, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "id": 1,
+          "targets": [
+            {
+              "expr": "sum(rate(nginx_ingress_controller_requests{host=\"demo.localhost\"}[1m]))",
+              "legendFormat": "req/s",
+              "refId": "A"
+            }
+          ],
+          "title": "Request rate (req/s) — demo.localhost",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": {}, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "id": 2,
+          "targets": [
+            {
+              "expr": "100 * (sum(rate(nginx_ingress_controller_requests{host=\"demo.localhost\",status=~\"5..\"}[5m])) / sum(rate(nginx_ingress_controller_requests{host=\"demo.localhost\"}[5m])))",
+              "legendFormat": "5xx %",
+              "refId": "A"
+            }
+          ],
+          "title": "5xx error rate (%) — demo.localhost",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": {}, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "id": 3,
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{host=\"demo.localhost\"}[5m])))",
+              "legendFormat": "p95",
+              "refId": "A"
+            }
+          ],
+          "title": "Latency p95 (s) — demo.localhost",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": {}, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "id": 4,
+          "targets": [
+            {
+              "expr": "sum(nginx_ingress_controller_nginx_process_connections{state=\"active\"})",
+              "legendFormat": "active conns",
+              "refId": "A"
+            }
+          ],
+          "title": "Ingress saturation proxy — active connections",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "10s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": ["demo-service", "sli", "ingress"],
+      "templating": { "list": [] },
+      "time": { "from": "now-15m", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Demo Service (via ingress-nginx metrics)",
+      "uid": "demo-service-ingress",
+      "version": 1
+    }
