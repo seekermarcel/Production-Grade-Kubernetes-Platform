@@ -8,13 +8,16 @@ metadata:
 spec:
   project: default
 
-  source:
-    repoURL: https://grafana.github.io/helm-charts
-    chart: loki-stack
-    targetRevision: 2.10.2
-    helm:
-      valueFiles:
-        - $values/platform/apps/observability/values/loki-stack.yaml
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki-stack
+      targetRevision: 2.10.2
+      helm:
+        valueFiles:
+          - $values/platform/apps/observability/values/loki-stack.yaml
+    - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
+      targetRevision: monitoring
+      ref: values
 
   destination:
     server: https://kubernetes.default.svc
@@ -29,11 +32,3 @@ spec:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
-
-  sources:
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: loki-stack
-      targetRevision: 2.10.2
-    - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
-      targetRevision: monitoring
-      ref: values

@@ -8,27 +8,27 @@ metadata:
 spec:
   project: default
 
+  sources:
+  # Source 1: Helm chart
+  - repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 80.14.3
+    helm:
+      releaseName: monitoring
+      valueFiles:
+        - $values/platform/apps/observability/values/kube-prometheus-stack.yaml
+      parameters:
+        - name: crds.enabled
+          value: "true"
+
+  # Source 2: Git repo (values + manifests), referenced by $values/
+  - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
+    targetRevision: monitoring
+    ref: values
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
-  sources:
-    # Source 1: Helm chart
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 80.14.3
-      helm:
-        releaseName: monitoring
-        valueFiles:
-          - $values/platform/apps/observability/values/kube-prometheus-stack.yaml
-        parameters:
-          - name: crds.enabled
-            value: "true"
-
-    # Source 2: Git repo (values + manifests), referenced by $values/
-    - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
-      targetRevision: monitoring
-      ref: values
 
   syncPolicy:
     automated:
