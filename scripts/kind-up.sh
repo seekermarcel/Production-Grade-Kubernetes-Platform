@@ -17,7 +17,7 @@ kubectl apply -f platform/bootstrap/manifests/namespaces.yaml
 
 echo "==> Installing bootstrap components via helmfile"
 pushd platform/bootstrap >/dev/null
-helmfile apply
+helmfile sync
 popd >/dev/null
 
 echo "==> Waiting for cert-manager to be ready"
