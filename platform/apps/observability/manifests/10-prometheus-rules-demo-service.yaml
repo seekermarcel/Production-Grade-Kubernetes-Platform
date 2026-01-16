@@ -1,0 +1,39 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-service-sli-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: demo-service.sli
+      rules:
+        # High 5xx rate for the demo host (user impact)
+        - alert: DemoServiceHigh5xxRate
+          expr: |
+            (
+              sum(rate(nginx_ingress_controller_requests{host="demo.localhost",status=~"5.."}[5m]))
+              /
+              sum(rate(nginx_ingress_controller_requests{host="demo.localhost"}[5m]))
+            ) > 0.02
+          for: 5m
+          labels:
+            severity: page
+          annotations:
+            summary: "High 5xx rate for demo-service"
+            description: "More than 2% 5xx responses for host demo.localhost over 5m."
+
+        # High latency p95 (user impact)
+        - alert: DemoServiceHighLatencyP95
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (rate(nginx_ingress_controller_request_duration_seconds_bucket{host="demo.localhost"}[5m]))
+            ) > 0.5
+          for: 10m
+          labels:
+            severity: ticket
+          annotations:
+            summary: "High latency p95 for demo-service"
+            description: "p95 latency > 500ms for host demo.localhost over 10m."

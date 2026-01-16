@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+
+  sources:
+  # Source 1: Helm chart
+  - repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 80.14.3
+    helm:
+      releaseName: monitoring
+      valueFiles:
+        - $values/platform/apps/observability/values/kube-prometheus-stack.yaml
+      parameters:
+        - name: crds.enabled
+          value: "true"
+
+  # Source 2: Git repo (values + manifests), referenced by $values/
+  - repoURL: https://github.com/seekermarcel/Production-Grade-Kubernetes-Platform
+    targetRevision: monitoring
+    ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
