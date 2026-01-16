@@ -12,7 +12,7 @@ spec:
     path: platform/apps
     directory:
       recurse: true
-      exclude: '{manifests/*,values/*}'
+      exclude: '{**/manifests/*,**/values/*}'
 
   destination:
     server: https://kubernetes.default.svc
